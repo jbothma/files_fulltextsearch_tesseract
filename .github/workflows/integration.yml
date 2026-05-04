@@ -33,9 +33,9 @@ jobs:
         shell: bash
         run: |
           while IFS= read -r policy_file; do
-            sed -i 's#<policy domain="coder" rights="none" pattern="PDF" */>#<policy domain="coder" rights="read | write" pattern="PDF" />#g' "$policy_file"
+            sudo sed -i 's#<policy domain="coder" rights="none" pattern="PDF" */>#<policy domain="coder" rights="read | write" pattern="PDF" />#g' "$policy_file"
             if ! grep -q 'pattern="PDF"' "$policy_file"; then
-              sed -i '/<\/policymap>/i\  <policy domain="coder" rights="read | write" pattern="PDF" />' "$policy_file"
+              sudo sed -i '/<\/policymap>/i\  <policy domain="coder" rights="read | write" pattern="PDF" />' "$policy_file"
             fi
           done < <(find /etc -path '*ImageMagick*policy.xml' 2>/dev/null)
 
