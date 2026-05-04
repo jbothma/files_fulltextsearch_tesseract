@@ -19,6 +19,9 @@ jobs:
 
       - name: Install system dependencies and PHP imagick
         run: |
+          curl -sSLf https://github.com/mlocati/php-extension-installer/releases/latest/download/install-php-extensions \
+            -o /usr/local/bin/install-php-extensions
+          chmod +x /usr/local/bin/install-php-extensions
           apt-get update
           apt-get install -y --no-install-recommends \
             curl \
@@ -28,8 +31,7 @@ jobs:
             libmagickwand-dev \
             tesseract-ocr \
             unzip
-          pecl install imagick
-          docker-php-ext-enable imagick
+          install-php-extensions imagick
 
       - name: Install Composer
         run: |
@@ -37,6 +39,7 @@ jobs:
           php /tmp/composer-setup.php --install-dir=/usr/local/bin --filename=composer
 
       - name: Allow ImageMagick PDF coder
+        shell: bash
         run: |
           while IFS= read -r policy_file; do
             sed -i 's#<policy domain="coder" rights="none" pattern="PDF" */>#<policy domain="coder" rights="read | write" pattern="PDF" />#g' "$policy_file"
