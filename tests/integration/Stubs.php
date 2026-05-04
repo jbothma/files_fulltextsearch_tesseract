@@ -15,7 +15,7 @@ namespace OC\Files {
 	}
 }
 
-namespace OCA\Files_FullTextSearch_Tesseract\Integration;
+namespace OCA\Files_FullTextSearch_Tesseract\Integration {
 
 use OCP\Files\File;
 use OCP\IConfig;
@@ -102,3 +102,4 @@ final class IntegrationFile implements File {
 	public function hash($type, $raw = false): string { return ''; }
 	public function getChecksum(): string { return ''; }
 }
+} // namespace OCA\Files_FullTextSearch_Tesseract\Integration
