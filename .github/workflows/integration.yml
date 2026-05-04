@@ -10,33 +10,24 @@ permissions:
 jobs:
   pdf-ocr-integration:
     runs-on: ubuntu-latest
-    container:
-      image: php:8.2-cli-bookworm
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install system dependencies and PHP imagick
-        run: |
-          curl -sSLf https://github.com/mlocati/php-extension-installer/releases/latest/download/install-php-extensions \
-            -o /usr/local/bin/install-php-extensions
-          chmod +x /usr/local/bin/install-php-extensions
-          apt-get update
-          apt-get install -y --no-install-recommends \
-            curl \
-            git \
-            ghostscript \
-            imagemagick \
-            libmagickwand-dev \
-            tesseract-ocr \
-            unzip
-          install-php-extensions imagick
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: imagick
+          tools: composer
 
-      - name: Install Composer
+      - name: Install system dependencies
         run: |
-          curl -sS https://getcomposer.org/installer -o /tmp/composer-setup.php
-          php /tmp/composer-setup.php --install-dir=/usr/local/bin --filename=composer
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            ghostscript \
+            tesseract-ocr
 
       - name: Allow ImageMagick PDF coder
         shell: bash
@@ -46,7 +37,7 @@ jobs:
             if ! grep -q 'pattern="PDF"' "$policy_file"; then
               sed -i '/<\/policymap>/i\  <policy domain="coder" rights="read | write" pattern="PDF" />' "$policy_file"
             fi
-          done < <(find /etc -path '*ImageMagick*policy.xml')
+          done < <(find /etc -path '*ImageMagick*policy.xml' 2>/dev/null)
 
       - name: Install Composer dependencies
         run: composer install --no-interaction --prefer-dist
