@@ -2,6 +2,19 @@
 
 declare(strict_types=1);
 
+// OC\Files\View is a Nextcloud server internal — not shipped by nextcloud/ocp.
+// Everything else (OCP\*, Psr\Log\*) comes from composer deps.
+namespace OC\Files {
+	class View {
+		public function __construct(string $root = '') {
+		}
+
+		public function getLocalFile(string $path): string {
+			return $path;
+		}
+	}
+}
+
 namespace OCA\Files_FullTextSearch_Tesseract\Integration;
 
 use OCP\Files\File;
