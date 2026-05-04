@@ -25,5 +25,9 @@
   "require": {
     "thiagoalessio/tesseract_ocr": "2.13.0",
     "spatie/pdf-to-image": "3.1.0"
+  },
+  "require-dev": {
+    "nextcloud/ocp": "^33.0",
+    "phpunit/phpunit": "^10.0"
   }
 }

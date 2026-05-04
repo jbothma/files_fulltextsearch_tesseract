@@ -1,0 +1,52 @@
+name: Integration
+
+on:
+  pull_request:
+  push:
+
+permissions:
+  contents: read
+
+jobs:
+  pdf-ocr-integration:
+    runs-on: ubuntu-latest
+    container:
+      image: php:8.2-cli-bookworm
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install system dependencies and PHP imagick
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            curl \
+            git \
+            ghostscript \
+            imagemagick \
+            libmagickwand-dev \
+            tesseract-ocr \
+            unzip
+          pecl install imagick
+          docker-php-ext-enable imagick
+
+      - name: Install Composer
+        run: |
+          curl -sS https://getcomposer.org/installer -o /tmp/composer-setup.php
+          php /tmp/composer-setup.php --install-dir=/usr/local/bin --filename=composer
+
+      - name: Allow ImageMagick PDF coder
+        run: |
+          while IFS= read -r policy_file; do
+            sed -i 's#<policy domain="coder" rights="none" pattern="PDF" */>#<policy domain="coder" rights="read | write" pattern="PDF" />#g' "$policy_file"
+            if ! grep -q 'pattern="PDF"' "$policy_file"; then
+              sed -i '/<\/policymap>/i\  <policy domain="coder" rights="read | write" pattern="PDF" />' "$policy_file"
+            fi
+          done < <(find /etc -path '*ImageMagick*policy.xml')
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Run OCR integration test
+        run: vendor/bin/phpunit --configuration phpunit.integration.xml
